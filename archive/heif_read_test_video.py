@@ -24,15 +24,16 @@ def gather_all_keys(meta_list):
     return list(keys)
 
 def save_metadata_to_csv(files, output_csv):
-    if not files:
+    if not files:  # 파일 리스트가 비어있는 경우 처리
         print("처리할 파일이 없습니다.")
         return
 
     try:
         meta_list = []
         with exiftool.ExifTool() as et:
+            # 각 파일별로 메타데이터 추출
             for file in files:
-                metadata = et.execute("-j", "-G", file)
+                metadata = et.execute("-j", "-G", file)  # execute 메서드 사용
                 if metadata:
                     import json
                     metadata = json.loads(metadata)[0]

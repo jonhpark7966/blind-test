@@ -1,95 +1,115 @@
 import streamlit as st
-from PIL import Image
-import os
+import pandas as pd
 import random
-import csv
-import uuid
-from datetime import datetime  # Python의 datetime 모듈 사용
+import os
+from PIL import Image
+import pillow_heif  # 상단에 추가
 
-# 이미지 디렉토리 설정
-IMAGE_DIR = "images"
+# 앱 제목 설정
+st.title("Image Blind Test")
 
-# CSV 저장 함수
-def save_vote_to_csv(data, file_path="votes.csv"):
-    header = ["user_id", "filename", "timestamp"]
-    file_exists = os.path.exists(file_path)
-    with open(file_path, "a", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f)
-        if not file_exists:
-            writer.writerow(header)
-        for row in data:
-            writer.writerow(row)
+# 세션 상태 초기화
+if 'votes' not in st.session_state:
+    st.session_state.votes = []
 
-# 사용자 ID 생성 (Streamlit 세션 상태에 저장)
-if "user_id" not in st.session_state:
-    st.session_state["user_id"] = str(uuid.uuid4())  # 고유 사용자 ID 생성
+# metadata.csv 읽기
+@st.cache_data
+def load_metadata():
+    return pd.read_csv('./1/metadata.csv')
 
-# 사용자 투표 데이터 초기화
-if "votes" not in st.session_state:
-    st.session_state["votes"] = []
+metadata = load_metadata()
 
-# 이미지 파일 로드
-if not os.path.exists(IMAGE_DIR):
-    st.error("이미지 디렉토리가 존재하지 않습니다. 'images' 폴더를 생성하고 이미지를 추가하세요.")
-else:
-    # 폴더 내 이미지 파일 검색
-    g_files = [f for f in os.listdir(IMAGE_DIR) if f.startswith('G') and f.endswith(('jpg', 'jpeg', 'png'))]
-    i_files = [f for f in os.listdir(IMAGE_DIR) if f.startswith('I') and f.endswith(('jpg', 'jpeg', 'png'))]
-
-    if len(g_files) == 0 or len(i_files) == 0:
-        st.warning("G로 시작하는 파일과 I로 시작하는 파일이 각각 1개 이상 필요합니다.")
+# 이미지 로드 함수 수정
+def load_image(image_path):
+    full_path = os.path.join('./1', image_path)
+    if image_path.lower().endswith('.heic'):
+        heif_file = pillow_heif.read_heif(full_path)
+        img = Image.frombytes(
+            heif_file.mode, 
+            heif_file.size, 
+            heif_file.data,
+            "raw",
+            heif_file.mode,
+            heif_file.stride,
+        )
     else:
-        # 파일명에서 숫자 추출하여 정렬
-        g_files.sort(key=lambda x: int(x.split('.')[1]))
-        i_files.sort(key=lambda x: int(x.split('.')[1]))
+        # Rotate based on metadata "Orientation"ß
+        img = Image.open(full_path)
+        if metadata[metadata['FileName'] == image_path]["Orientation"].values[0] == "Rotate 90 CW":
+            img = img.rotate(-90, expand=True)
+        elif metadata[metadata['FileName'] == image_path]["Orientation"].values[0] == "Rotate 90 CCW":
+            img = img.rotate(90, expand=True)
+        elif metadata[metadata['FileName'] == image_path]["Orientation"].values[0] == "Rotate 180":
+            img = img.rotate(180, expand=True)
+    
+    return img
 
-        # 랜덤하게 한 쌍 선택
-        pair_index = random.randint(0, min(len(g_files), len(i_files)) - 1)
-        selected_files = [g_files[pair_index], i_files[pair_index]]
+# 랜덤 매치 선택
+def get_random_match():
+    # 모든 매치 번호 가져오기
+    matches = metadata['Match'].unique()
+    
+    # 랜덤하게 매치 선택
+    match = random.choice(matches)
+    
+    # 해당 Match의 이미지 쌍 가져오기
+    pair = metadata[metadata['Match'] == match]
+    images = pair['FileName'].tolist()
+    # 이미지 순서 랜덤화
+    random.shuffle(images)
+    return images[0], images[1]
 
-        # 이미지 순서를 랜덤하게 섞기
-        random.shuffle(selected_files)
-        image_paths = [os.path.join(IMAGE_DIR, img) for img in selected_files]
+# 메인 인터페이스
+col1, col2 = st.columns(2)
 
-        st.title("이미지 투표")
-        st.write(f"당신의 ID: **{st.session_state['user_id']}**")
-        st.write("아래 두 이미지 중 하나를 선택하세요:")
+if 'current_pair' not in st.session_state:
+    st.session_state.current_pair = get_random_match()
 
-        # 이미지 표시
-        col1, col2 = st.columns(2)
-        with col1:
-            st.image(image_paths[0], caption="이미지 1", use_container_width=True)
-            vote1 = st.button("이미지 1 선택")
-        with col2:
-            st.image(image_paths[1], caption="이미지 2", use_container_width=True)
-            vote2 = st.button("이미지 2 선택")
+# 두 이미지 로드
+img1 = load_image(st.session_state.current_pair[0])
+img2 = load_image(st.session_state.current_pair[1])
 
-        # 투표 결과 저장 (세션 상태에 임시 저장)
-        if vote1:
-            st.session_state["votes"].append([st.session_state["user_id"], selected_files[0], datetime.now().isoformat()])
-            st.success(f"'{selected_files[0]}'를 선택했습니다!")
-        elif vote2:
-            st.session_state["votes"].append([st.session_state["user_id"], selected_files[1], datetime.now().isoformat()])
-            st.success(f"'{selected_files[1]}'를 선택했습니다!")
+# 이미지 표시
+with col1:
+    st.image(img1, use_container_width=True)
+    if st.button('Select Left'):
+        st.session_state.votes.append({
+            'selected': st.session_state.current_pair[0],
+            'not_selected': st.session_state.current_pair[1]
+        })
+        st.session_state.current_pair = get_random_match()
+        st.rerun()
 
-        # 투표 종료 버튼
-        if st.button("투표 종료"):
-            if st.session_state["votes"]:
-                save_vote_to_csv(st.session_state["votes"])
-                
-                # 현재 사용자의 투표 결과 분석
-                total_votes = len(st.session_state["votes"])
-                g_votes = sum(1 for vote in st.session_state["votes"] if vote[1].startswith('G'))
-                i_votes = sum(1 for vote in st.session_state["votes"] if vote[1].startswith('I'))
-                
-                st.success("투표 결과가 저장되었습니다!")
-                st.write("---")
-                st.write("### 투표 결과 분석")
-                st.write(f"- 사용자 ID: **{st.session_state['user_id']}**")
-                st.write(f"- 전체 투표 횟수: **{total_votes}**회")
-                st.write(f"- G 이미지 선택 횟수: **{g_votes}**회")
-                st.write(f"- I 이미지 선택 횟수: **{i_votes}**회")
-                
-                st.session_state["votes"] = []  # 저장 후 초기화
-            else:
-                st.warning("저장할 투표 데이터가 없습니다.")
+with col2:
+    st.image(img2, use_container_width=True)
+    if st.button('Select Right'):
+        st.session_state.votes.append({
+            'selected': st.session_state.current_pair[1],
+            'not_selected': st.session_state.current_pair[0]
+        })
+        st.session_state.current_pair = get_random_match()
+        st.rerun()
+
+# 투표 종료 버튼
+if st.button('End Voting'):
+    if len(st.session_state.votes) > 0:
+        # 결과를 DataFrame으로 변환
+        results_df = pd.DataFrame(st.session_state.votes)
+        
+        # 선택된 파일명들을 metadata와 매칭하여 모델 정보 가져오기
+        selected_models = results_df['selected'].map(metadata.set_index('FileName')['Model'])
+        
+        # 통계 계산
+        total_votes = len(st.session_state.votes)
+        s24_ultra_votes = sum(selected_models == 'Galaxy S24 Ultra')
+        iphone_16_pro_max_votes = sum(selected_models == 'iPhone 16 Pro Max')
+        
+        # 결과 표시
+        st.write(f"총 투표 횟수: {total_votes}")
+        st.write(f"Galaxy S24 Ultra 선택 횟수: {s24_ultra_votes}")
+        st.write(f"iPhone 16 Pro Max 선택 횟수: {iphone_16_pro_max_votes}")
+        
+        # 세션 상태 초기화
+        st.session_state.votes = []
+        st.session_state.current_pair = get_random_match()
+ 
