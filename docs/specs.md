@@ -212,8 +212,6 @@
 - 투표 시 CSV 파일 업데이트 후, pandas groupby 등을 사용해 통계 계산
 - 성능 이슈 시 임시 stats.csv에 요약본 저장
 
-
-
 ## 프로젝트 구조
 
 ```blind-test/
