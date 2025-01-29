@@ -41,6 +41,9 @@ def main():
     
     # 세션 초기화
     SessionManager.init_session()
+
+    if 'votes' in st.session_state and len(st.session_state.votes) > 0:
+        SessionManager.save_votes_and_reset()
     
     # 컨테스트 목록 로드
     contests_df = pd.read_csv("data/contests.csv")

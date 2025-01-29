@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+from utils.session_manager import SessionManager
 from utils.stats_handler import StatsHandler
 from utils.metadata_handler import MetadataHandler
 
@@ -38,6 +39,12 @@ def display_contest_stats(contest: pd.Series):
 
 def main():
     st.title("전체 투표 통계")
+
+    # 세션 초기화
+    SessionManager.init_session()
+
+    if 'votes' in st.session_state and len(st.session_state.votes) > 0:
+        SessionManager.save_votes_and_reset()
     
     # 컨테스트 목록 로드
     contests_df = pd.read_csv("data/contests.csv")

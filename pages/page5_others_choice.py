@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import os
+from utils.session_manager import SessionManager
 from utils.stats_handler import StatsHandler
 from utils.metadata_handler import MetadataHandler
 
@@ -54,6 +55,12 @@ def display_match_stats(metadata_handler: MetadataHandler, stats_handler: StatsH
 
 def main():
     st.title("투표 결과 상세보기")
+
+    # 세션 초기화
+    SessionManager.init_session()
+
+    if 'votes' in st.session_state and len(st.session_state.votes) > 0:
+        SessionManager.save_votes_and_reset()
     
     # 컨테스트 목록 로드
     contests_df = pd.read_csv("data/contests.csv")

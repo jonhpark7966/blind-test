@@ -11,46 +11,6 @@ from utils.session_manager import SessionManager
 from utils.stats_handler import StatsHandler
 
 
-def save_votes(contest_dir, contest_id, votes):
-    """투표 내역을 votes.csv에 저장한다."""
-    votes_file = os.path.join(contest_dir, "votes.csv")
-    if os.path.exists(votes_file):
-        old_df = pd.read_csv(votes_file)
-    else:
-        old_df = pd.DataFrame(columns=[
-            "vote_id", "user_id", "session_id", "contest_id",
-            "match_number", "chosen_option", "model", "timestamp"
-        ])
-
-    metadata_handler = st.session_state.metadata_handlers[contest_id]
-    metadata = metadata_handler.get_matches()
-
-    new_rows = []
-    for v in votes:
-        # Find model info from metadata
-        chosen_file = v['selected']
-        chosen_metadata = next((m for m in metadata if m['FileName'] == chosen_file), None)
-        model = chosen_metadata.get('Model', '') if chosen_metadata else ''
-
-        new_rows.append({
-            "vote_id": str(uuid.uuid4()),
-            "user_id": "anonymous",  # TODO: 실제로는 계정 시스템과 연동
-            "session_id": st.session_state["session_id"],
-            "contest_id": contest_id,
-            "match_number": v['match_number'],
-            "chosen_option": v['selected'],
-            "model": model,
-            "timestamp": datetime.now().isoformat()
-        })
-    
-    new_df = pd.DataFrame(new_rows)
-    final_df = pd.concat([old_df, new_df], ignore_index=True)
-    final_df.to_csv(votes_file, index=False)
-
-    # TODO 투표가 끝나면 통계도 업데이트(StatsHandler 활용 예시)
-    # StatsHandler.update_stats(contest_dir)
-
-
 def load_contests():
     """contests.csv에서 컨테스트 목록을 로드합니다."""
     contests_df = pd.read_csv("data/contests.csv")
@@ -193,7 +153,9 @@ def main():
                 st.session_state.votes.append({
                     'match_number': match_number,
                     'selected': file1,
-                    'not_selected': file2
+                    'not_selected': file2,
+                    'contest_id': contest['contest_id'],
+                    'contest_dir': contest['dir_path']
                 })
                 match_data = get_random_match(metadata_handler)
                 if match_data:
@@ -202,8 +164,7 @@ def main():
                 else:
                     # 모든 매치 완료 시 결과 페이지로 이동
                     st.success("모든 투표가 완료되었습니다!")
-                    save_votes(contest['dir_path'], contest['contest_id'], st.session_state.votes)
-                    st.session_state.votes = []
+                    SessionManager.save_votes_and_reset()
         
         with col2:
             display_media(col2, media2, file2, is_video)
@@ -213,7 +174,9 @@ def main():
                 st.session_state.votes.append({
                     'match_number': match_number,
                     'selected': file2,
-                    'not_selected': file1
+                    'not_selected': file1,
+                    'contest_id': contest['contest_id'],
+                    'contest_dir': contest['dir_path']
                 })
                 match_data = get_random_match(metadata_handler)
                 if match_data:
@@ -221,21 +184,14 @@ def main():
                     st.rerun()
                 else:
                     # 모든 매치 완료 시 결과 페이지로 이동
-                    save_votes(contest['dir_path'], contest['contest_id'], st.session_state.votes)
+                    SessionManager.save_votes_and_reset()
                     st.success("모든 투표가 완료되었습니다!")
- 
         
         # Submit 버튼 (투표 종료)
         if st.button('Submit'):
             if 'votes' in st.session_state and len(st.session_state.votes) > 0:
-                # votes.csv에 저장
-                save_votes(contest['dir_path'], contest['contest_id'], st.session_state.votes)
-                
-                # 저장 후 세션 votes 초기화
-                num_votes = len(st.session_state.votes)
-                st.session_state.votes = []
-                
-                st.success(f"총 {num_votes}개의 투표가 완료되었습니다! 결과 페이지로 이동합니다.")
+                st.success(f"투표가 완료되었습니다! 결과 페이지로 이동합니다.")
+                SessionManager.save_votes_and_reset()
                 st.switch_page("pages/page2_my_result.py")
                 st.stop()
 
