@@ -127,7 +127,7 @@ class MetadataHandler:
                 continue
 
             matched = self.match_files(metadata_list)
-            primary_cols = ['FileName', 'Model', 'CreateDate', 'Match', 'Orientation']
+            primary_cols = ['FileName', 'Model', 'CreateDate', 'Match', 'Orientation','tag']
             all_cols = set()
             for m in matched:
                 all_cols.update(m.keys())
@@ -181,6 +181,11 @@ class MetadataHandler:
             metadata = self.extract_metadata(file_path)
             return metadata.get('Orientation')
         return None
+    
+    def get_tag(self, filename: str) -> Optional[str]:
+        if self.read_from_csv:
+            metadata = next((m for m in self.metadata if m['FileName'] == filename), None)
+            return metadata.get('tag')
 
 
 if __name__ == "__main__":

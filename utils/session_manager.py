@@ -17,7 +17,7 @@ class SessionManager:
             st.session_state.votes = []
     
     @staticmethod
-    def add_vote(contest_id: str, match_number: int, chosen_option: str):
+    def add_vote(contest_id: str, match_number: int, chosen_option: str, tag: str = ""):
         """투표 결과를 세션에 추가합니다."""
         vote = {
             'vote_id': str(uuid.uuid4()),
@@ -25,7 +25,8 @@ class SessionManager:
             'session_id': st.session_state.session_id,
             'contest_id': contest_id,
             'match_number': match_number,
-            'chosen_option': chosen_option
+            'chosen_option': chosen_option,
+            'tag': tag
         }
         st.session_state.votes.append(vote)
         return vote
@@ -65,7 +66,7 @@ class SessionManager:
             else:
                 old_df = pd.DataFrame(columns=[
                     "vote_id", "user_id", "session_id", "contest_id",
-                    "match_number", "chosen_option", "model", "timestamp"
+                    "match_number", "chosen_option", "model", "timestamp", "tag"
                 ])
 
             metadata_handler = st.session_state.metadata_handlers[contest_id]
@@ -77,6 +78,7 @@ class SessionManager:
                 chosen_file = v['selected']
                 chosen_metadata = next((m for m in metadata if m['FileName'] == chosen_file), None)
                 model = chosen_metadata.get('Model', '') if chosen_metadata else ''
+                tag = chosen_metadata.get('tag', '') if chosen_metadata else ''
 
                 new_rows.append({
                     "vote_id": str(uuid.uuid4()),
@@ -86,7 +88,8 @@ class SessionManager:
                     "match_number": v['match_number'],
                     "chosen_option": v['selected'],
                     "model": model,
-                    "timestamp": datetime.now().isoformat()
+                    "timestamp": datetime.now().isoformat(),
+                    "tag": tag  # 태그가 없는 경우 빈 문자열 사용
                 })
             
             new_df = pd.DataFrame(new_rows)

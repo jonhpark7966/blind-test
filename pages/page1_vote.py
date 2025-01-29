@@ -146,6 +146,11 @@ def main():
         col1, col2 = st.columns(2)
         
         with col1:
+            file1_name = os.path.basename(file1)
+            tag = metadata_handler.get_tag(file1_name)
+            if tag:  # If tag exists
+                st.write(f"{tag}")  # Display tag directly as a string
+            
             display_media(col1, media1, file1, is_video)
             if st.button('왼쪽 선택'):
                 if 'votes' not in st.session_state:
@@ -167,6 +172,10 @@ def main():
                     SessionManager.save_votes_and_reset()
         
         with col2:
+            file2_name = os.path.basename(file2)
+            tag = metadata_handler.get_tag(file2_name)
+            if tag:  # If tag exists
+                st.write(f"{tag}")  # Display tag directly as a string
             display_media(col2, media2, file2, is_video)
             if st.button('오른쪽 선택'):
                 if 'votes' not in st.session_state:

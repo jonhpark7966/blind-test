@@ -34,38 +34,71 @@ def display_vote_summary(contest_id: str):
         return
     
 
-    # 투표 통계 계산
-    vote_counts = {}
-    for vote in contest_votes:
-        option = vote['chosen_option']
-        vote_counts[option] = vote_counts.get(option, 0) + 1
-    
-    # 결과 표시
+    # 투표 통계 계산 및 결과 표시 부분
     st.write("### 내 투표 결과")
     st.write(f"전체 투표 횟수: {len(contest_votes)}회")
 
-    # 모델별 투표 수 계산
-    model_votes = {}
+    # 모델과 태그 조합별 투표 수 계산
+    vote_data = []
     for vote in contest_votes:
-        model = vote['model']
-        model_votes[model] = model_votes.get(model, 0) + 1
+        vote_data.append({
+            'model': vote['model'],
+            'tag': vote['tag'],
+            'count': 1
+        })
     
-    # Plotly를 사용하여 파이 차트 생성
-    fig = px.pie(
-        values=list(model_votes.values()),
-        names=list(model_votes.keys()),
-        title='모델별 투표 비율',
-        hole=0.3  # 도넛 차트 스타일을 위한 설정 (선택사항)
-    )
+    # DataFrame 생성 및 그룹화
+    vote_df = pd.DataFrame(vote_data)
     
-    # 차트 레이아웃 설정
-    fig.update_layout(
-        title_x=0.5,  # 제목 중앙 정렬
-        title_font_size=20
-    )
+    # 필터 추가
+    col1, col2 = st.columns(2)
+    with col1:
+        selected_models = st.multiselect(
+            "모델 선택",
+            options=sorted(vote_df['model'].unique()),
+            default=sorted(vote_df['model'].unique())
+        )
+    with col2:
+        selected_tags = st.multiselect(
+            "태그 선택",
+            options=sorted(vote_df['tag'].unique()),
+            default=sorted(vote_df['tag'].unique())
+        )
     
-    # Streamlit에 차트 표시
-    st.plotly_chart(fig, use_container_width=True)
+    # 필터 적용
+    filtered_df = vote_df[
+        (vote_df['model'].isin(selected_models)) &
+        (vote_df['tag'].isin(selected_tags))
+    ]
+    
+    # 그룹화 적용
+    filtered_df = filtered_df.groupby(['model', 'tag'])['count'].sum().reset_index()
+
+    if len(filtered_df) > 0:
+        # Sunburst 차트 생성
+        fig = px.sunburst(
+            filtered_df,
+            path=['model', 'tag'],
+            values='count',
+            title='모델 및 태그별 투표 분포',
+        )
+        
+        # 차트 레이아웃 설정
+        fig.update_layout(
+            title_x=0.5,  # 제목 중앙 정렬
+            title_font_size=20,
+        )
+        
+        # 텍스트 표시 설정
+        fig.update_traces(
+            textinfo='label+text+value+percent parent',
+            insidetextfont=dict(size=12)
+        )
+        
+        # Streamlit에 차트 표시
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.warning("선택한 필터에 해당하는 데이터가 없습니다.")
 
 def main():
     st.title("내 투표 결과")
