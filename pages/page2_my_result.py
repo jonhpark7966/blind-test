@@ -6,6 +6,7 @@ from utils.stats_handler import StatsHandler
 from utils.metadata_handler import MetadataHandler
 import plotly.express as px
 from utils.contest_sidebar import display_contest_sidebar  # Import the function
+from utils.share_link_generator import generate_shareable_link
 
 def load_my_votes(contest_dir: str):
     """현재 세션의 투표 결과를 불러옵니다."""
@@ -101,6 +102,13 @@ def display_vote_summary(contest_id: str):
     else:
         st.warning("선택한 필터에 해당하는 데이터가 없습니다.")
 
+    # Generate shareable link
+    try:
+        share_link = generate_shareable_link(contest_id)
+        st.write(f"Share this link to view your results: {share_link}")
+    except ValueError as e:
+        st.error(f"Error generating shareable link: {e}")
+
 def main():
     st.title("내 투표 결과")
     
@@ -111,7 +119,8 @@ def main():
         SessionManager.save_votes_and_reset()
     
     # 사이드바에 컨테스트 목록 표시
-    contest = display_contest_sidebar()
+    default_contest_id = st.session_state.get('last_contest_id')
+    contest = display_contest_sidebar(default_contest_id)
     
     # 선택된 컨테스트의 결과 표시
     display_vote_summary(str(contest['contest_id']))

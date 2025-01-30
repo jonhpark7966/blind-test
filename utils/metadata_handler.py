@@ -187,6 +187,31 @@ class MetadataHandler:
             metadata = next((m for m in self.metadata if m['FileName'] == filename), None)
             return metadata.get('tag')
 
+    @staticmethod
+    def get_contests_for_session(session_id: str) -> List[Dict]:
+        """Retrieve all contests associated with a given session ID."""
+        contests_dir = "data/contests"
+        contests = []
+
+        for contest_id in os.listdir(contests_dir):
+            contest_path = os.path.join(contests_dir, contest_id)
+            if not os.path.isdir(contest_path):
+                continue
+
+            votes_file = os.path.join(contest_path, "votes.csv")
+            if not os.path.exists(votes_file):
+                continue
+
+            votes_df = pd.read_csv(votes_file)
+            if session_id in votes_df['session_id'].values:
+                contest_metadata = {
+                    'contest_id': contest_id,
+                    'name': contest_id  # Assuming contest_id is used as the name; adjust if there's a different naming convention
+                }
+                contests.append(contest_metadata)
+
+        return contests
+
 
 if __name__ == "__main__":
     # Example Usage: python3 metadata_handler.py ../data/contests/

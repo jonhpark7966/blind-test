@@ -196,6 +196,8 @@ def main():
             if 'votes' in st.session_state and len(st.session_state.votes) > 0:
                 st.success(f"투표가 완료되었습니다! 결과 페이지로 이동합니다.")
                 SessionManager.save_votes_and_reset()
+                # Store the current contest ID in session state
+                st.session_state['last_contest_id'] = contest['contest_id']
                 st.switch_page("pages/page2_my_result.py")
                 st.stop()
 
