@@ -5,6 +5,7 @@ from utils.session_manager import SessionManager
 from utils.stats_handler import StatsHandler
 from utils.metadata_handler import MetadataHandler
 import plotly.express as px
+from utils.contest_sidebar import display_contest_sidebar  # Import the function
 
 def load_my_votes(contest_dir: str):
     """현재 세션의 투표 결과를 불러옵니다."""
@@ -109,21 +110,19 @@ def main():
     if 'votes' in st.session_state and len(st.session_state.votes) > 0:
         SessionManager.save_votes_and_reset()
     
-    # 컨테스트 목록 로드
-    contests_df = pd.read_csv("data/contests.csv")
+    # 사이드바에 컨테스트 목록 표시
+    contest = display_contest_sidebar()
     
-    # 각 컨테스트별 결과 표시
-    for _, contest in contests_df.iterrows():
-        st.write(f"## {contest['contest_name']}")
-        display_vote_summary(str(contest['contest_id']))
-        
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button("남들 결과 보기", key=f"others_{contest['contest_id']}"):
-                st.switch_page("pages/page3_stats.py")
-        with col2:
-            if st.button("내 선택 돌아보기", key=f"review_{contest['contest_id']}"):
-                st.switch_page("pages/page4_my_choice.py")
+    # 선택된 컨테스트의 결과 표시
+    display_vote_summary(str(contest['contest_id']))
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("남들 결과 보기"):
+            st.switch_page("pages/page3_stats.py")
+    with col2:
+        if st.button("내 선택 돌아보기"):
+            st.switch_page("pages/page4_my_choice.py")
 
 if __name__ == "__main__":
     main() 

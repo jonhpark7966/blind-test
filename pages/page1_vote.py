@@ -9,22 +9,7 @@ import pillow_heif
 from utils.metadata_handler import MetadataHandler
 from utils.session_manager import SessionManager
 from utils.stats_handler import StatsHandler
-
-
-def load_contests():
-    """contests.csv에서 컨테스트 목록을 로드합니다."""
-    contests_df = pd.read_csv("data/contests.csv")
-    return contests_df.sort_values('contest_start_date', ascending=False)
-
-def display_contest_sidebar():
-    """사이드바에 컨테스트 목록을 표시합니다."""
-    contests = load_contests()
-    selected_contest = st.sidebar.selectbox(
-        "컨테스트 선택",
-        contests['contest_name'].tolist(),
-        index=0  # 첫 번째 컨테스트를 기본 선택
-    )
-    return contests[contests['contest_name'] == selected_contest].iloc[0]
+from utils.contest_sidebar import display_contest_sidebar  # Import the function
 
 def load_media(file_path, metadata_handler):
     """이미지나 비디오 파일을 로드합니다."""
@@ -59,8 +44,17 @@ def load_media(file_path, metadata_handler):
         
         return img
     else:  # 비디오 파일
-        with open(file_path, 'rb') as f:
-            return f.read()
+        file_ext = os.path.splitext(file_path)[1].lower()
+        file_name = os.path.basename(file_path)
+    
+        if file_ext in ['.mov', '.mp4', '.avi']:
+            return file_path
+        else:
+            return None
+       # with open(file_path, 'rb') as f:
+           # return f.read()
+
+
 
 def get_random_match(metadata_handler):
     """랜덤한 매치를 선택합니다. 이미 투표한 매치는 제외합니다."""
@@ -127,7 +121,8 @@ def main():
     st.write(contest['contest_description'])
     
     # 현재 매치 가져오기 또는 새로운 매치 선택
-    if 'current_pair' not in st.session_state:
+    if 'current_contest_id' not in st.session_state or st.session_state.current_contest_id != contest['contest_id']:
+        st.session_state.current_contest_id = contest['contest_id']
         match_data = get_random_match(metadata_handler)
         if match_data:
             st.session_state.current_pair = match_data
