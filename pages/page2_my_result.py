@@ -21,8 +21,7 @@ def display_vote_summary(contest_id: str):
         if st.button("투표하러 가기"):
             st.switch_page("pages/page1_vote.py")
         return
-    
-    st.write("### 내 투표 결과")
+
     st.write(f"전체 투표 횟수: {len(contest_votes)}회")
     
     display_vote_results(contest_votes)
