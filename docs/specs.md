@@ -71,7 +71,7 @@
    - filename : string, 파일 이름 ("IMG_0001.jpg")
    - option : string, 옵션 이름 ("iphone")
    - model: string, 모델 이름 ("iphone 15")
-   - tags: string list, 태그 리스트 (ex) ["인물", "야간", "주간","실내",...]
+   - tags: string list, 태그 리스트 (ex) ["인물", "야간", "주간", "실내", ...]
    - 기타 추출가능한 모든 정보들.
 
 ## 화면 흐름

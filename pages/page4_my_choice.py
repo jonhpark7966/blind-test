@@ -5,6 +5,7 @@ from utils.contest_sidebar import display_contest_sidebar, load_contest_df
 from utils.media_handler import display_media, load_media
 from utils.session_manager import SessionManager
 from utils.metadata_handler import MetadataHandler, get_metadata_handler
+from utils.tag_styler import display_tags
 from utils.votes_handler import load_my_votes
 
 def display_match_result(metadata_handler: MetadataHandler, match_number: int, chosen_option: str, index: int):
@@ -22,7 +23,7 @@ def display_match_result(metadata_handler: MetadataHandler, match_number: int, c
 
         filename = data['FileName']
         model = data.get('Model', '')
-        tags = data.get('tag', '')
+        tags = data.get('tags', [])
 
         # File path
         file_path = os.path.join(metadata_handler.directory, filename)
@@ -35,7 +36,7 @@ def display_match_result(metadata_handler: MetadataHandler, match_number: int, c
     with st.container():
         # view match number and tags    
         st.write(f"### Match {index}")
-        st.write(f"Tags: {tags}")
+        display_tags(tags)
         col1, col2 = st.columns(2)
 
         # Determine which media should be in col1 based on selection
@@ -110,9 +111,9 @@ def main():
     def next_page():
         if st.session_state.page_number < total_pages:
             st.session_state.page_number += 1
-
+    
     with col1:
-        st.button("⬅", on_click=prev_page, use_container_width=True)
+        st.button("⬅", on_click=prev_page, use_container_width=True, key='prev_page_button')
 
     with col2:
         st.markdown(

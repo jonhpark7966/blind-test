@@ -1,9 +1,13 @@
+import ast
+from functools import reduce
 import streamlit as st
 import os
 import pandas as pd
 from utils.metadata_handler import MetadataHandler
 from utils.stats_handler import StatsHandler
 import plotly.express as px
+import plotly.graph_objects as go
+from utils.vote_display import display_vote_results
 
 def load_shared_votes(contest_id: str, session_id: str):
     """Load votes for a specific session ID."""
@@ -34,77 +38,17 @@ def display_shared_results(contest_id: str, session_id: str):
         st.write("No results found for this session.")
         return
 
-    st.write("### Shared Voting Results")
-    st.write(f"Total Votes: {len(votes)}")
-
-    # Prepare data for chart
-    vote_data = []
-    for vote in votes:
-        vote_data.append({
-            'model': vote['model'],
-            'tag': vote['tag'],
-            'count': 1
-        })
-
-    vote_df = pd.DataFrame(vote_data)
-
-    # Add filters
-    col1, col2 = st.columns(2)
-    with col1:
-        selected_models = st.multiselect(
-            "Select Models",
-            options=sorted(vote_df['model'].unique()),
-            default=sorted(vote_df['model'].unique())
-        )
-    with col2:
-        selected_tags = st.multiselect(
-            "Select Tags",
-            options=sorted(vote_df['tag'].unique()),
-            default=sorted(vote_df['tag'].unique())
-        )
-
-    # Apply filters
-    filtered_df = vote_df[
-        (vote_df['model'].isin(selected_models)) &
-        (vote_df['tag'].isin(selected_tags))
-    ]
-
-    # Group data
-    filtered_df = filtered_df.groupby(['model', 'tag'])['count'].sum().reset_index()
-
-    if len(filtered_df) > 0:
-        # Create Sunburst chart
-        fig = px.sunburst(
-            filtered_df,
-            path=['model', 'tag'],
-            values='count',
-            title='Vote Distribution by Model and Tag',
-        )
-
-        # Update chart layout
-        fig.update_layout(
-            title_x=0.5,
-            title_font_size=20,
-        )
-
-        # Update trace settings
-        fig.update_traces(
-            textinfo='label+text+value+percent parent',
-            insidetextfont=dict(size=12)
-        )
-
-        # Display chart in Streamlit
-        st.plotly_chart(fig, use_container_width=True)
-    else:
-        st.warning("No data matches the selected filters.")
+    st.write("### 공유된 투표 결과")
+    st.write(f"전체 투표 횟수: {len(votes)}회")
+    
+    display_vote_results(votes, title_prefix="공유된 ")
 
 def main():
     st.title("Shared Voting Results")
 
     # Extract query parameters
-    query_params = st.experimental_get_query_params()
-    contest_id = query_params.get("contest_id", [None])[0]
-    session_id = query_params.get("session_id", [None])[0]
+    contest_id = st.query_params["contest_id"]
+    session_id = st.query_params["session_id"]
 
     if not contest_id or not session_id:
         st.error("Invalid link. Missing contest ID or session ID.")

@@ -6,6 +6,7 @@ from typing import List, Dict, Optional
 
 import pandas as pd
 import streamlit as st
+import ast
 
 
 class MetadataHandler:
@@ -21,6 +22,12 @@ class MetadataHandler:
     
     def read_metadata_from_csv(self):
         metadata_df = pd.read_csv(os.path.join(self.directory, "metadata.csv"))
+
+        for index, row in metadata_df.iterrows():
+            tags_str = row['tags']
+            tags = ast.literal_eval(tags_str)
+            metadata_df.at[index, 'tags'] = tags
+
         return metadata_df.to_dict(orient='records')
 
     def parse_date(self, date_str: Optional[str]) -> Optional[datetime]:
@@ -31,7 +38,6 @@ class MetadataHandler:
         except:
             return None
 
-    @st.cache_data
     def extract_metadata(self, file_path: str) -> Dict:
         try:
             with exiftool.ExifTool() as et:
@@ -72,7 +78,6 @@ class MetadataHandler:
             print(f"Error processing {file_path}: {str(e)}")
             return {}
 
-    @st.cache_data
     def match_files(self, metadata_list: List[Dict]) -> List[Dict]:
         valid_files = [m for m in metadata_list if m.get('_dt')]
         remaining_files = valid_files.copy()
@@ -130,7 +135,7 @@ class MetadataHandler:
                 continue
 
             matched = self.match_files(metadata_list)
-            primary_cols = ['FileName', 'Model', 'CreateDate', 'Match', 'Orientation','tag']
+            primary_cols = ['FileName', 'Model', 'CreateDate', 'Match', 'Orientation','tags']
             all_cols = set()
             for m in matched:
                 all_cols.update(m.keys())
@@ -185,10 +190,11 @@ class MetadataHandler:
             return metadata.get('Orientation')
         return None
     
-    def get_tag(self, filename: str) -> Optional[str]:
+    def get_tags(self, filename: str) -> Optional[str]:
         if self.read_from_csv:
             metadata = next((m for m in self.metadata if m['FileName'] == filename), None)
-            return metadata.get('tag')
+            return metadata.get('tags')
+            
 
     @staticmethod
     def get_contests_for_session(session_id: str) -> List[Dict]:

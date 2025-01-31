@@ -11,6 +11,7 @@ from utils.session_manager import SessionManager
 from utils.stats_handler import StatsHandler
 from utils.contest_sidebar import display_contest_sidebar, load_contest_df  # Import the function
 from utils.media_handler import load_media, display_media
+from utils.tag_styler import display_tags
 
 def get_random_match(metadata_handler):
     """랜덤한 매치를 선택합니다. 이미 투표한 매치는 제외합니다."""
@@ -79,6 +80,8 @@ def main():
 
         # get all length of matches
         all_matches = metadata_handler.get_matches()
+        # count unique match numbers (key is 'Match')
+        all_matches_length = len(set(item['Match'] for item in all_matches))
 
         # get length of matches that user has voted
         voted_matches = set()
@@ -87,24 +90,39 @@ def main():
         voted_matches_length = len(voted_matches)
 
         # display number of matches that user has voted per all contests
-        st.write(f"Match {voted_matches_length}  / {len(all_matches)}")
+        progress_percentage = (voted_matches_length / all_matches_length) * 100
+        st.markdown("<br>", unsafe_allow_html=True)  # Add space above
+        st.markdown(
+            f"""
+            <div style="border: 1px solid #ddd; border-radius: 5px; padding: 10px; text-align: center;">
+                <strong>Progress:</strong> {voted_matches_length} / {all_matches_length} matches voted
+                <div style="background-color: transparent; border-radius: 5px; overflow: hidden; margin-top: 5px;">
+                    <div style="width: {progress_percentage}%; background-color: white; padding: 5px 0; color: grey;">
+                        {progress_percentage:.1f}%
+                    </div>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        st.markdown("<br>", unsafe_allow_html=True)  # Add space below
 
-        # TODO, tag -> multitag & coloring
         file1_name = os.path.basename(file1)
-        tag = metadata_handler.get_tag(file1_name)
+        tags = metadata_handler.get_tags(file1_name)
 
-        if tag:  # If tag exists
-            st.write(f"{tag}")  # Display tag directly as a string
+        # Container for tags (on the left) and submit button (on the right)
+        row_tags, row_submit  = st.columns([0.6, 0.4], gap='large', vertical_alignment='center')
 
+        with row_tags:
+            display_tags(tags)
 
-        # Submit 버튼 (투표 종료)
-        if st.button('투표 끝내고, 결과보기', key='submit_button'):
-            if 'votes' in st.session_state and len(st.session_state.votes) > 0:
-                st.success(f"투표가 완료되었습니다! 결과 페이지로 이동합니다.")
-                SessionManager.save_votes_and_reset()
-                # Store the current contest ID in session state
-                st.session_state['last_contest_id'] = contest['contest_id']
-                st.switch_page("pages/page2_my_result.py")
+        with row_submit:
+            if st.button('투표 끝내고, 결과보기', key='submit-button', type='primary', use_container_width=True):
+                if 'votes' in st.session_state and len(st.session_state.votes) > 0:
+                    st.success("투표가 완료되었습니다! 결과 페이지로 이동합니다.")
+                    SessionManager.save_votes_and_reset()
+                    st.session_state['last_contest_id'] = contest['contest_id']
+                    st.switch_page("pages/page2_my_result.py")
 
         # 화면 분할 및 미디어 표시
         col1, col2 = st.columns(2)
@@ -129,8 +147,7 @@ def main():
             display_media(col1, media1)
             
         
-        with col2:
-           
+        with col2:     
             if st.button('↓ 선택', key=f'button2_{match_number}'):
                 if 'votes' not in st.session_state:
                     st.session_state.votes = []

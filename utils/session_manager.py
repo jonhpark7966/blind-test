@@ -68,7 +68,7 @@ class SessionManager:
             else:
                 old_df = pd.DataFrame(columns=[
                     "vote_id", "user_id", "session_id", "contest_id",
-                    "match_number", "chosen_option", "model", "timestamp", "tag"
+                    "match_number", "chosen_option", "model", "timestamp", "tags"
                 ])
 
             metadata_handler = get_metadata_handler(contest_dir)
@@ -80,7 +80,7 @@ class SessionManager:
                 chosen_file = v['selected']
                 chosen_metadata = next((m for m in metadata if m['FileName'] == chosen_file), None)
                 model = chosen_metadata.get('Model', '') if chosen_metadata else ''
-                tag = chosen_metadata.get('tag', '') if chosen_metadata else ''
+                tags = chosen_metadata.get('tags', ['']) if chosen_metadata else ['']
 
                 new_rows.append({
                     "vote_id": str(uuid.uuid4()),
@@ -91,7 +91,7 @@ class SessionManager:
                     "chosen_option": v['selected'],
                     "model": model,
                     "timestamp": datetime.now().isoformat(),
-                    "tag": tag  # 태그가 없는 경우 빈 문자열 사용
+                    "tags": tags  # 태그가 없는 경우 빈 문자열 사용
                 })
             
             new_df = pd.DataFrame(new_rows)
