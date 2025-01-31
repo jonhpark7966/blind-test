@@ -102,7 +102,6 @@ def main():
 
     # Pagination controls
     col1, col2, col3 = st.columns(3, gap="large")
-    
 
     def prev_page():
         if st.session_state.page_number > 1:
