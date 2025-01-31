@@ -5,6 +5,8 @@ import pandas as pd
 import os
 from datetime import datetime
 
+from utils.metadata_handler import get_metadata_handler
+
 class SessionManager:
     @staticmethod
     def init_session():
@@ -69,7 +71,7 @@ class SessionManager:
                     "match_number", "chosen_option", "model", "timestamp", "tag"
                 ])
 
-            metadata_handler = st.session_state.metadata_handlers[contest_id]
+            metadata_handler = get_metadata_handler(contest_dir)
             metadata = metadata_handler.get_matches()
 
             new_rows = []

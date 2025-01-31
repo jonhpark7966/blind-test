@@ -2,8 +2,6 @@ import os
 import streamlit as st
 import pandas as pd
 from utils.session_manager import SessionManager
-from utils.stats_handler import StatsHandler
-from utils.metadata_handler import MetadataHandler
 import plotly.express as px
 from utils.contest_sidebar import display_contest_sidebar  # Import the function
 from utils.share_link_generator import generate_shareable_link
@@ -91,12 +89,18 @@ def display_vote_summary(contest_id: str):
             title_font_size=20,
         )
         
+        
         # 텍스트 표시 설정
         fig.update_traces(
             textinfo='label+text+value+percent parent',
             insidetextfont=dict(size=12)
         )
-        
+        fig.update_traces(
+        textinfo='label+value+percent entry',
+        insidetextfont=dict(size=12),
+        textfont=dict(size=12, color='black'),  # Set text color and size
+        insidetextorientation='horizontal'  # Keep text horizontal
+        )
         # Streamlit에 차트 표시
         st.plotly_chart(fig, use_container_width=True)
     else:

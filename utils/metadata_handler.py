@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import List, Dict, Optional
 
 import pandas as pd
+import streamlit as st
 
 
 class MetadataHandler:
@@ -211,6 +212,11 @@ class MetadataHandler:
                 contests.append(contest_metadata)
 
         return contests
+
+
+@st.cache_data
+def get_metadata_handler(dir_path):
+    return MetadataHandler(dir_path, read_from_csv=True)
 
 
 if __name__ == "__main__":

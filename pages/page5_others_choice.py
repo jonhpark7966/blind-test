@@ -1,9 +1,10 @@
 import streamlit as st
 import pandas as pd
 import os
+from utils.contest_sidebar import load_contest_df
 from utils.session_manager import SessionManager
 from utils.stats_handler import StatsHandler
-from utils.metadata_handler import MetadataHandler
+from utils.metadata_handler import MetadataHandler, get_metadata_handler
 
 def display_match_stats(metadata_handler: MetadataHandler, stats_handler: StatsHandler, match_number: int):
     """매치의 통계와 결과를 시각적으로 표시합니다."""
@@ -63,7 +64,7 @@ def main():
         SessionManager.save_votes_and_reset()
     
     # 컨테스트 목록 로드
-    contests_df = pd.read_csv("data/contests.csv")
+    contests_df = load_contest_df()
     
     # 컨테스트 선택
     selected_contest = st.selectbox(
@@ -72,7 +73,7 @@ def main():
     )
     
     contest = contests_df[contests_df['contest_name'] == selected_contest].iloc[0]
-    metadata_handler = MetadataHandler(contest['dir_path'])
+    metadata_handler = get_metadata_handler(contest['dir_path'])
     stats_handler = StatsHandler(contest['dir_path'])
     
     # 매치 번호 선택

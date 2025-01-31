@@ -17,4 +17,4 @@ if "votes" not in st.session_state:
     st.session_state.votes = []
 
 # Redirect to page1_votes
-st.switch_page("pages/page1_votes.py") 
+st.switch_page("pages/page1_vote.py") 

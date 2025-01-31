@@ -6,10 +6,10 @@ import random
 import os
 from PIL import Image
 import pillow_heif
-from utils.metadata_handler import MetadataHandler
+from utils.metadata_handler import MetadataHandler, get_metadata_handler
 from utils.session_manager import SessionManager
 from utils.stats_handler import StatsHandler
-from utils.contest_sidebar import display_contest_sidebar  # Import the function
+from utils.contest_sidebar import display_contest_sidebar, load_contest_df  # Import the function
 
 def load_media(file_path, metadata_handler):
     """이미지나 비디오 파일을 로드합니다."""
@@ -103,18 +103,16 @@ def main():
     # 세션 초기화
     SessionManager.init_session()
     
+    # Load contest data
+    contest_df = load_contest_df()
+
+ 
+
     # 컨테스트 선택
     contest = display_contest_sidebar()
-    
-    # metadata_handlers 딕셔너리를 세션에서 초기화
-    if 'metadata_handlers' not in st.session_state:
-        st.session_state.metadata_handlers = {}
-    
-    # 현재 컨테스트의 metadata_handler가 없으면 생성
-    if contest['contest_id'] not in st.session_state.metadata_handlers:
-        st.session_state.metadata_handlers[contest['contest_id']] = MetadataHandler(contest['dir_path'], read_from_csv=True)
-    
-    metadata_handler = st.session_state.metadata_handlers[contest['contest_id']]
+
+    # Get MetadataHandler for the selected contest
+    metadata_handler = get_metadata_handler(contest['dir_path'])
     
     # 타이틀 표시
     st.title(contest['contest_name'])
