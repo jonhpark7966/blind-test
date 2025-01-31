@@ -31,6 +31,7 @@ class MetadataHandler:
         except:
             return None
 
+    @st.cache_data
     def extract_metadata(self, file_path: str) -> Dict:
         try:
             with exiftool.ExifTool() as et:
@@ -71,6 +72,7 @@ class MetadataHandler:
             print(f"Error processing {file_path}: {str(e)}")
             return {}
 
+    @st.cache_data
     def match_files(self, metadata_list: List[Dict]) -> List[Dict]:
         valid_files = [m for m in metadata_list if m.get('_dt')]
         remaining_files = valid_files.copy()

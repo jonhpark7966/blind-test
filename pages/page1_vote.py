@@ -102,11 +102,6 @@ def display_media(col, media, file_path, is_video=False):
 def main():
     # 세션 초기화
     SessionManager.init_session()
-    
-    # Load contest data
-    contest_df = load_contest_df()
-
- 
 
     # 컨테스트 선택
     contest = display_contest_sidebar()
@@ -134,18 +129,44 @@ def main():
         # 미디어 로드
         media1 = load_media(os.path.join(contest['dir_path'], file1), metadata_handler)
         media2 = load_media(os.path.join(contest['dir_path'], file2), metadata_handler)
+
         
+        
+        
+        # get all length of matches
+        all_matches = metadata_handler.get_matches()
+
+        # get length of matches that user has voted
+        voted_matches = set()
+        if 'votes' in st.session_state:
+            voted_matches = {vote['match_number'] for vote in st.session_state.votes}
+        voted_matches_length = len(voted_matches)
+
+        # display number of matches that user has voted per all contests
+        st.write(f"Match {voted_matches_length}  / {len(all_matches)}")
+
+        # TODO, tag -> multitag & coloring
+        file1_name = os.path.basename(file1)
+        tag = metadata_handler.get_tag(file1_name)
+
+        if tag:  # If tag exists
+            st.write(f"{tag}")  # Display tag directly as a string
+
+
+        # Submit 버튼 (투표 종료)
+        if st.button('투표 끝내고, 결과보기', key='submit_button'):
+            if 'votes' in st.session_state and len(st.session_state.votes) > 0:
+                st.success(f"투표가 완료되었습니다! 결과 페이지로 이동합니다.")
+                SessionManager.save_votes_and_reset()
+                # Store the current contest ID in session state
+                st.session_state['last_contest_id'] = contest['contest_id']
+                st.switch_page("pages/page2_my_result.py")
+
         # 화면 분할 및 미디어 표시
         col1, col2 = st.columns(2)
-        
+
         with col1:
-            file1_name = os.path.basename(file1)
-            tag = metadata_handler.get_tag(file1_name)
-            if tag:  # If tag exists
-                st.write(f"{tag}")  # Display tag directly as a string
-            
-            display_media(col1, media1, file1, is_video)
-            if st.button('왼쪽 선택'):
+            if st.button('↓ 선택', key=f'button1_{match_number}'):
                 if 'votes' not in st.session_state:
                     st.session_state.votes = []
                 st.session_state.votes.append({
@@ -160,17 +181,13 @@ def main():
                     st.session_state.current_pair = match_data
                     st.rerun()
                 else:
-                    # 모든 매치 완료 시 결과 페이지로 이동
                     st.success("모든 투표가 완료되었습니다!")
-                    SessionManager.save_votes_and_reset()
+            display_media(col1, media1, file1, is_video)
+            
         
         with col2:
-            file2_name = os.path.basename(file2)
-            tag = metadata_handler.get_tag(file2_name)
-            if tag:  # If tag exists
-                st.write(f"{tag}")  # Display tag directly as a string
-            display_media(col2, media2, file2, is_video)
-            if st.button('오른쪽 선택'):
+           
+            if st.button('↓ 선택', key=f'button2_{match_number}'):
                 if 'votes' not in st.session_state:
                     st.session_state.votes = []
                 st.session_state.votes.append({
@@ -185,19 +202,11 @@ def main():
                     st.session_state.current_pair = match_data
                     st.rerun()
                 else:
-                    # 모든 매치 완료 시 결과 페이지로 이동
-                    SessionManager.save_votes_and_reset()
                     st.success("모든 투표가 완료되었습니다!")
+                
+            display_media(col2, media2, file2, is_video)
         
-        # Submit 버튼 (투표 종료)
-        if st.button('Submit'):
-            if 'votes' in st.session_state and len(st.session_state.votes) > 0:
-                st.success(f"투표가 완료되었습니다! 결과 페이지로 이동합니다.")
-                SessionManager.save_votes_and_reset()
-                # Store the current contest ID in session state
-                st.session_state['last_contest_id'] = contest['contest_id']
-                st.switch_page("pages/page2_my_result.py")
-                st.stop()
+
 
 if __name__ == "__main__":
     main() 
