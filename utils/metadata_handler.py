@@ -19,6 +19,12 @@ class MetadataHandler:
         if read_from_csv:
             print("Reading metadata from csv")
             self.metadata = self.read_metadata_from_csv()
+
+    def get_unique_models(self):
+        unique_models = set()
+        for metadata in self.metadata:
+            unique_models.add(metadata['Model'])
+        return unique_models
     
     def read_metadata_from_csv(self):
         metadata_df = pd.read_csv(os.path.join(self.directory, "metadata.csv"))

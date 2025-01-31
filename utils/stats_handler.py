@@ -10,15 +10,41 @@ class StatsHandler:
         self.votes_path = os.path.join(contest_dir, "votes.csv")
         self.stats_path = os.path.join(contest_dir, "stats.csv")
         self.stats_per_tag_path = os.path.join(contest_dir, "stats_per_tag.csv")
+        self.stats_per_match_path = os.path.join(contest_dir, "stats_per_match.csv")
+
+    def calculate_stats_per_match(self):
+        # 각 매치에 대한 통계를 계산
+        votes = load_total_votes(self.contest_dir)
+        for vote in votes:
+            vote['match_number'] = int(vote['match_number'])
+
+        # get unique "match_number"
+        unique_match_numbers = set(vote['match_number'] for vote in votes)
+
+        # get unique "model"
+        unique_model_names = set(vote['model'] for vote in votes)
+
+        # create a dataframe to store stats_per_match
+        stats_per_match_df = pd.DataFrame()
+
+        for match_number in unique_match_numbers:
+            # get all votes for the match
+            match_votes = [vote for vote in votes if vote['match_number'] == match_number]
+
+            # count votes for each model
+            model_counts = {model: sum(1 for vote in match_votes if vote['model'] == model) for model in unique_model_names}
+            
+            # save model_counts per model to stats_per_match.csv
+            stats_per_match_df = pd.concat([stats_per_match_df, pd.DataFrame(model_counts, index=[match_number])])
+
+        return stats_per_match_df
+        
     
     def calculate_stats(self) -> Dict:
         """투표 데이터를 집계하여 통계를 계산합니다."""
         votes = load_total_votes(self.contest_dir)
 
-        print(self.contest_dir)
-
-        contest_votes = [v for v in votes]
-        filtered_df, model_counts, unique_tags, tag_counts_per_model = filter_and_count_by_tags(contest_votes)
+        filtered_df, model_counts, unique_tags, tag_counts_per_model = filter_and_count_by_tags(votes)
 
         # save tag_counts_per_model to stats.csv
         tag_counts_per_model_df = pd.DataFrame(tag_counts_per_model)
@@ -28,6 +54,11 @@ class StatsHandler:
         model_counts_df = pd.DataFrame(model_counts)
         model_counts_df.to_csv(self.stats_path, index=True)
 
+        # save stats_per_match to stats_per_match.csv
+        stats_per_match_df = self.calculate_stats_per_match()
+        stats_per_match_df.to_csv(self.stats_per_match_path, index=True)
+
+
     # load stats.csv
     def load_stats(self):
         # read to dataframe and convert to series
@@ -36,6 +67,10 @@ class StatsHandler:
     # load stats_per_tag.csv
     def load_stats_per_tag(self):
         return pd.read_csv(self.stats_per_tag_path, index_col=0)
+    
+    # load stats_per_match.csv
+    def load_stats_per_match(self):
+        return pd.read_csv(self.stats_per_match_path, index_col=0)
 
 
 def process_all_contest_dirs(base_dir: str):
