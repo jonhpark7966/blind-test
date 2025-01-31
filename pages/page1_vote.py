@@ -10,51 +10,7 @@ from utils.metadata_handler import MetadataHandler, get_metadata_handler
 from utils.session_manager import SessionManager
 from utils.stats_handler import StatsHandler
 from utils.contest_sidebar import display_contest_sidebar, load_contest_df  # Import the function
-
-def load_media(file_path, metadata_handler):
-    """이미지나 비디오 파일을 로드합니다."""
-    file_ext = os.path.splitext(file_path)[1].lower()
-    file_name = os.path.basename(file_path)
-    
-    if file_ext in ['.jpg', '.jpeg', '.png', '.heic']:
-        if file_ext == '.heic':
-            heif_file = pillow_heif.read_heif(file_path)
-            img = Image.frombytes(
-                heif_file.mode, 
-                heif_file.size, 
-                heif_file.data,
-                "raw",
-                heif_file.mode,
-                heif_file.stride,
-            )
-        else:
-            # GALAXY Orient handling
-            img = Image.open(file_path)
-        
-            # metadata_handler에서 orientation 정보 가져오기
-            orientation = metadata_handler.get_orientation(file_name)
-
-            # orientation에 따라 이미지 회전
-            if orientation == 6:
-                img = img.rotate(-90, expand=True)
-            elif orientation == 5:
-                img = img.rotate(90, expand=True)
-            elif orientation == 8:
-                img = img.rotate(180, expand=True)
-        
-        return img
-    else:  # 비디오 파일
-        file_ext = os.path.splitext(file_path)[1].lower()
-        file_name = os.path.basename(file_path)
-    
-        if file_ext in ['.mov', '.mp4', '.avi']:
-            return file_path
-        else:
-            return None
-       # with open(file_path, 'rb') as f:
-           # return f.read()
-
-
+from utils.media_handler import load_media, display_media
 
 def get_random_match(metadata_handler):
     """랜덤한 매치를 선택합니다. 이미 투표한 매치는 제외합니다."""
@@ -92,12 +48,6 @@ def get_random_match(metadata_handler):
     random.shuffle(matches)
     return pair[0], pair[1], match_number
 
-def display_media(col, media, file_path, is_video=False):
-    """미디어를 화면에 표시합니다."""
-    if is_video:
-        col.video(media)
-    else:
-        col.image(media, use_container_width=True)
 
 def main():
     # 세션 초기화
@@ -123,16 +73,10 @@ def main():
     if 'current_pair' in st.session_state:
         file1, file2, match_number = st.session_state.current_pair
         
-        # 미디어 타입 확인
-        is_video = any(file1.lower().endswith(ext) for ext in ['.mp4', '.mov', '.avi'])
-        
         # 미디어 로드
         media1 = load_media(os.path.join(contest['dir_path'], file1), metadata_handler)
         media2 = load_media(os.path.join(contest['dir_path'], file2), metadata_handler)
 
-        
-        
-        
         # get all length of matches
         all_matches = metadata_handler.get_matches()
 
@@ -182,7 +126,7 @@ def main():
                     st.rerun()
                 else:
                     st.success("모든 투표가 완료되었습니다!")
-            display_media(col1, media1, file1, is_video)
+            display_media(col1, media1)
             
         
         with col2:
@@ -204,7 +148,7 @@ def main():
                 else:
                     st.success("모든 투표가 완료되었습니다!")
                 
-            display_media(col2, media2, file2, is_video)
+            display_media(col2, media2)
         
 
 

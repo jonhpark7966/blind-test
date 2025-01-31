@@ -5,19 +5,7 @@ from utils.session_manager import SessionManager
 import plotly.express as px
 from utils.contest_sidebar import display_contest_sidebar  # Import the function
 from utils.share_link_generator import generate_shareable_link
-
-def load_my_votes(contest_dir: str):
-    """현재 세션의 투표 결과를 불러옵니다."""
-    # load form votes.csv
-    votes_file = os.path.join(contest_dir, "votes.csv")
-    votes_df = pd.read_csv(votes_file)
-    # filter by session_id, make it list
-    ret =  votes_df[votes_df['session_id'] == st.session_state['session_id']].to_dict(orient='records')
-
-    # TODO: filter by user_id
-
-    return ret
-    
+from utils.votes_handler import load_my_votes  # Updated import
 
 def display_vote_summary(contest_id: str):
     """특정 컨테스트에 대한 투표 요약을 표시합니다."""
