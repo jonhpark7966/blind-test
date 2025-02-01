@@ -45,6 +45,7 @@ def main():
     for i, vote in enumerate(my_votes[start_index:end_index]):
         index = start_index + i + 1
         display_match_result(metadata_handler, vote['match_number'], vote['chosen_option'], index)
+        
 
 
     # Pagination controls

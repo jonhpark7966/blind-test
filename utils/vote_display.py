@@ -11,8 +11,8 @@ def display_charts(model_counts, tag_counts_per_model, title_prefix=""):
     col1, col2 = st.columns(2)
     pastel_colors = ['#BA55D3','#FFD700','#FFB6C1', '#FF69B4']
 
-    st.write(model_counts)
-    st.write(tag_counts_per_model)
+    
+   
 
     with col1:
         pie_fig = px.pie(
@@ -22,6 +22,7 @@ def display_charts(model_counts, tag_counts_per_model, title_prefix=""):
             color_discrete_sequence=pastel_colors
         )
         st.plotly_chart(pie_fig)
+        st.write(model_counts)
 
     with col2:
         bar_data = []
@@ -38,6 +39,7 @@ def display_charts(model_counts, tag_counts_per_model, title_prefix=""):
         bar_fig = go.Figure(data=bar_data)
         bar_fig.update_layout(barmode='group', title=f"{title_prefix}카테고리별 투표 결과")
         st.plotly_chart(bar_fig)
+        st.write(tag_counts_per_model)
 
     # Now place the segmented control below the charts
     new_selection = st.session_state["selected_tags"]

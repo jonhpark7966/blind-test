@@ -34,6 +34,7 @@ def display_total_match_result(metadata_handler: MetadataHandler, vote:Series, i
     with st.container():
         # view match number and tags  
         # also add a total vote count  
+        st.markdown("---")
         st.write(f"### Match {index}")
         st.write(f"총 투표 수: {vote.sum()}회")
         display_tags(tags)
@@ -96,6 +97,7 @@ def display_match_result(metadata_handler: MetadataHandler, match_number: int, c
 
     with st.container():
         # view match number and tags    
+        st.markdown("---")
         st.write(f"### Match {index}")
         display_tags(tags)
         col1, col2 = st.columns(2)

@@ -2,6 +2,7 @@ import streamlit as st
 import os
 import sys
 
+from utils.contest_sidebar import display_contest_sidebar, display_page_sidebar_with_page
 from utils.stats_handler import process_all_contest_dirs
 
 # Add project root to Python path
@@ -35,5 +36,9 @@ st.set_page_config(
 if "votes" not in st.session_state:
     st.session_state.votes = []
 
-# Redirect to page1_votes
-st.switch_page("pages/page1_vote.py") 
+display_contest_sidebar()
+
+try:
+    display_page_sidebar_with_page()
+except Exception as e:
+    st.error(f"An error occurred: {e}")

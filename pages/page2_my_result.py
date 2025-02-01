@@ -24,14 +24,13 @@ def display_vote_summary(contest_id: str):
 
     st.write(f"전체 투표 횟수: {len(contest_votes)}회")
     
+    share_link = generate_shareable_link(contest_id)
+    st.markdown(f"[📋 공유 링크]({share_link})")
+    
     display_vote_results(contest_votes)
 
-    # Generate shareable link
-    try:
-        share_link = generate_shareable_link(contest_id)
-        st.write(f"Share this link to view your results: {share_link}")
-    except ValueError as e:
-        st.error(f"Error generating shareable link: {e}")
+ 
+
 
 def main():
     st.title("내 투표 결과")
