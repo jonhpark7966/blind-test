@@ -94,10 +94,10 @@ def main():
         st.markdown("<br>", unsafe_allow_html=True)  # Add space above
         st.markdown(
             f"""
-            <div style="border: 1px solid #ddd; border-radius: 5px; padding: 10px; text-align: center;">
-                <strong>Progress:</strong> {voted_matches_length} / {all_matches_length} matches voted
-                <div style="background-color: transparent; border-radius: 5px; overflow: hidden; margin-top: 5px;">
-                    <div style="width: {progress_percentage}%; background-color: white; padding: 5px 0; color: grey;">
+            <div style="border: 1px solid #ddd; border-radius: 5px; padding: 10px; text-align: center; font-size: 12px; margin: 0 50px;">
+                <strong>Progress:</strong> {voted_matches_length} / {all_matches_length}
+                <div style="background-color: transparent; border-radius: 5px; overflow: hidden; margin-top: 5px; margin: 0 10px;">
+                    <div style="width: {progress_percentage}%; background-color: white; height: 5px; padding: 2px 0; color: grey; font-size: 10px;">
                         {progress_percentage:.1f}%
                     </div>
                 </div>
@@ -124,6 +124,8 @@ def main():
                     st.session_state['last_contest_id'] = contest['contest_id']
                     st.switch_page("pages/page2_my_result.py")
 
+
+        st.markdown("---")
         # 화면 분할 및 미디어 표시
         col1, col2 = st.columns(2)
 

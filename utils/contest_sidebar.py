@@ -18,6 +18,8 @@ def display_contest_sidebar(default_contest_id=None):
         contests['contest_name'].tolist(),
         index=0  # 첫 번째 컨테스트를 기본 선택
     )
+    st.sidebar.markdown("---")
+    display_page_sidebar_with_page()
 
     ret_df = contests[contests['contest_name'] == selected_contest]
     return ret_df.iloc[0] 
@@ -25,16 +27,10 @@ def display_contest_sidebar(default_contest_id=None):
 
 def display_page_sidebar_with_page():
 
-    pages = {
-    "Your account": [
-        st.Page("./app_pages/page1_vote.py", title="Create your account"),
-        st.Page("./app_pages/page2_my_result.py", title="Manage your account"),
-    ],
-    "Resources": [
-        st.Page("./app_pages/page3_stats.py", title="Learn about us"),
-        st.Page("./app_pages/page4_my_choice.py", title="Try it out"),
-    ],
-    }
+    st.sidebar.page_link("./pages/page1_vote.py", label="투표하기", icon="✅")
+    st.sidebar.page_link("./pages/page2_my_result.py", label="내 결과 보기", icon="👀")
+    st.sidebar.page_link("./pages/page4_my_choice.py", label="내 선택 보기", icon="🔍")
+    st.sidebar.page_link("./pages/page3_stats.py", label="전체 통계 보기", icon="📊")
+    st.sidebar.page_link("./pages/page5_others_choice.py", label="전체 선택 보기", icon="🌄")
+    st.sidebar.page_link("./pages/page6_shared_result.py", label="공유된 결과 보기", icon="📋", disabled=True)
 
-    pg = st.navigation(pages)
-    pg.run()

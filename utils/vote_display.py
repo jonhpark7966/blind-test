@@ -11,9 +11,6 @@ def display_charts(model_counts, tag_counts_per_model, title_prefix=""):
     col1, col2 = st.columns(2)
     pastel_colors = ['#BA55D3','#FFD700','#FFB6C1', '#FF69B4']
 
-    
-   
-
     with col1:
         pie_fig = px.pie(
             names=model_counts.index,

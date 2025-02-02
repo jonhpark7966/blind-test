@@ -25,6 +25,7 @@ def run_process_periodically():
 thread = threading.Thread(target=run_process_periodically)
 thread.start()
 
+st.set_option("client.showSidebarNavigation", False)
 # Page configuration
 st.set_page_config(
     page_title="블라인드 테스트",
@@ -38,7 +39,4 @@ if "votes" not in st.session_state:
 
 display_contest_sidebar()
 
-try:
-    display_page_sidebar_with_page()
-except Exception as e:
-    st.error(f"An error occurred: {e}")
+st.switch_page("pages/page1_vote.py")

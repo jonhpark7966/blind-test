@@ -35,7 +35,7 @@ def main():
     # 사이드바에 컨테스트 목록 표시
     default_contest_id = st.session_state.get('last_contest_id')
     contest = display_contest_sidebar(default_contest_id)
-    
+
     # 선택된 컨테스트의 결과 표시
     display_all_vote_summary(str(contest['contest_id']))
 

@@ -11,6 +11,10 @@ from utils.votes_handler import load_my_votes
 import plotly.graph_objects as go
 from utils.vote_display import display_vote_results
 
+from st_copy_to_clipboard import st_copy_to_clipboard
+
+
+
 def display_vote_summary(contest_id: str):
     contest_dir = os.path.join("data", "contests", contest_id)
     votes = load_my_votes(contest_dir)
@@ -22,11 +26,12 @@ def display_vote_summary(contest_id: str):
             st.switch_page("pages/page1_vote.py")
         return
 
-    st.write(f"전체 투표 횟수: {len(contest_votes)}회")
-    
     share_link = generate_shareable_link(contest_id)
-    st.markdown(f"[📋 공유 링크]({share_link})")
-    
+    # Render copy to clipboard button
+    st_copy_to_clipboard(share_link, "📋 공유 링크 복사하기", "✅ 공유 링크 복사가 완료되었습니다!")
+
+
+    st.write(f"전체 투표 횟수: {len(contest_votes)}회")
     display_vote_results(contest_votes)
 
  
