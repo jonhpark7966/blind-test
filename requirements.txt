@@ -1,6 +1,6 @@
-streamlit>=1.24.0
-pandas>=1.5.3
-numpy>=1.24.3
-plotly>=5.15.0
-pillow>=9.5.0
-uuid>=1.30 
+pandas==2.2.3
+Pillow==11.1.0
+pillow_heif==0.21.0
+plotly==6.0.0
+PyExifTool==0.5.6
+st_copy_to_clipboard==0.1.6
