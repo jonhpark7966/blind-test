@@ -55,7 +55,8 @@ def main():
     SessionManager.init_session()
 
     # 컨테스트 선택
-    contest = display_contest_sidebar()
+    selected_contest_id = st.session_state.get('last_contest_id')
+    contest = display_contest_sidebar(selected_contest_id)
 
     # Get MetadataHandler for the selected contest
     metadata_handler = get_metadata_handler(contest['dir_path'])
@@ -122,7 +123,7 @@ def main():
                     st.success("투표가 완료되었습니다! 결과 페이지로 이동합니다.")
                     SessionManager.save_votes_and_reset()
                     st.session_state['last_contest_id'] = contest['contest_id']
-                    st.switch_page("pages/page2_my_result.py")
+                    st.switch_page("pages/results.py")
 
 
         st.markdown("---")

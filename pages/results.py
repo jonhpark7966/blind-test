@@ -23,7 +23,7 @@ def display_vote_summary(contest_id: str):
     if not contest_votes:
         st.write("아직 투표 결과가 없습니다.")
         if st.button("투표하러 가기"):
-            st.switch_page("pages/page1_vote.py")
+            st.switch_page("pages/vote.py")
         return
 
     share_link = generate_shareable_link(contest_id)
@@ -52,10 +52,10 @@ def main():
     col1, col2 = st.columns(2)
     with col1:
         if st.button("남들 결과 보기"):
-            st.switch_page("pages/page3_stats.py")
+            st.switch_page("pages/stats.py")
     with col2:
         if st.button("내 선택 돌아보기"):
-            st.switch_page("pages/page4_my_choice.py")
+            st.switch_page("pages/choices.py")
 
 if __name__ == "__main__":
     main()

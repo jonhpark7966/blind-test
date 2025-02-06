@@ -17,7 +17,9 @@ def main():
     SessionManager.init_session()
 
     # 컨테스트 선택
-    contest = display_contest_sidebar()
+    selected_contest_id = st.session_state.get('last_contest_id')
+    contest = display_contest_sidebar(selected_contest_id)
+ 
     metadata_handler = get_metadata_handler(contest['dir_path'])
     
     # Load my vote results
@@ -26,7 +28,7 @@ def main():
     if not my_votes:
         st.write("No voting results for this contest.")
         if st.button("Go to Vote"):
-            st.switch_page("pages/page1_vote.py")
+            st.switch_page("pages/vote.py")
         return
     
     # Initialize page number in session state if not already set

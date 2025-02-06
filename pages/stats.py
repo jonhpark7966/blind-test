@@ -42,7 +42,7 @@ def main():
     col1, _ = st.columns(2)  # Unpack the columns correctly
     with col1:
         if st.button("다수의 선택 확인하기"):
-            st.switch_page("pages/page5_others_choice.py")
+            st.switch_page("pages/statsdetail.py")
 
 if __name__ == "__main__":
     main() 

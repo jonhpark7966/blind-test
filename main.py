@@ -39,4 +39,4 @@ if "votes" not in st.session_state:
 
 display_contest_sidebar()
 
-st.switch_page("pages/page1_vote.py")
+st.switch_page("pages/vote.py")
