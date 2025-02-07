@@ -44,6 +44,9 @@ def main():
     if not contest_id or not session_id:
         st.error("Invalid link. Missing contest ID or session ID.")
         return
+    
+    if st.button("나도 투표하러 가기"):
+        st.switch_page("pages/vote.py")
 
     display_shared_results(contest_id, session_id)
 
