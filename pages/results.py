@@ -30,8 +30,7 @@ def display_vote_summary(contest_id: str):
     # Render copy to clipboard button
     st_copy_to_clipboard(share_link, "📋 공유 링크 복사하기", "✅ 공유 링크 복사가 완료되었습니다!")
 
-
-    st.write(f"전체 투표 횟수: {len(contest_votes)}회")
+    #st.write(f"전체 투표 횟수: {len(contest_votes)}회")
     display_vote_results(contest_votes)
 
  
