@@ -3,6 +3,7 @@ from functools import reduce
 import streamlit as st
 import os
 import pandas as pd
+from utils.contest_sidebar import display_contest_sidebar
 from utils.metadata_handler import MetadataHandler
 from utils.stats_handler import StatsHandler
 import plotly.express as px
@@ -19,21 +20,11 @@ def load_shared_votes(contest_id: str, session_id: str):
 def display_shared_results(contest_id: str, session_id: str):
     """Display the results for the shared session."""
     # Load all contests for the session
-    all_contests = MetadataHandler.get_contests_for_session(session_id)
-    
-    # Sidebar for contest selection
-    selected_contest_name = st.sidebar.selectbox(
-        "Select Contest",
-        options=[contest['name'] for contest in all_contests],
-        index=next(i for i, contest in enumerate(all_contests) if contest['contest_id'] == contest_id)
-    )
-
-    # Find the selected contest dictionary
-    selected_contest = next(contest for contest in all_contests if contest['name'] == selected_contest_name)
+    selected_contest = display_contest_sidebar(contest_id)
 
     # Load votes for the selected contest
     selected_contest_id = selected_contest['contest_id']
-    votes = load_shared_votes(selected_contest_id, session_id)
+    votes = load_shared_votes(str(selected_contest_id), session_id)
     if not votes:
         st.write("No results found for this session.")
         return
