@@ -8,8 +8,7 @@ from utils.stats_handler import process_all_contest_dirs
 # Add project root to Python path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-
-base_directory = '/Users/jonhpark/Documents/GitHub/blind-test/data/contests'  # 각 contest 디렉토리가 있는 상위 디렉토리 경로
+base_directory = os.path.join('data', 'contests')  # 각 contest 디렉토리가 있는 상위 디렉토리 경로
 
 # 모든 콘테스트 디렉토리 처리
 # 매 5분마다 process 따로 생성해서 돌리기

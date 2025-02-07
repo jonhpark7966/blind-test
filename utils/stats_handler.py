@@ -79,6 +79,7 @@ def process_all_contest_dirs(base_dir: str):
         full_path = os.path.join(base_dir, contest_dir)
         if os.path.isdir(full_path):
             # 각 디렉토리에 대해 StatsHandler 인스턴스 생성 및 업데이트
+            print(full_path)
             stats_handler = StatsHandler(full_path)
             stats_handler.calculate_stats()
 

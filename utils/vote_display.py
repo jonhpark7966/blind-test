@@ -38,13 +38,13 @@ def display_charts(model_counts, tag_counts_per_model, title_prefix=""):
         st.plotly_chart(bar_fig)
         st.write(tag_counts_per_model)
 
-    # Now place the segmented control below the charts
-    new_selection = st.session_state["selected_tags"]
-    
-    # If the user changes selections, update session_state and rerun
-    if new_selection != st.session_state["selected_tags"]:
-        st.session_state["selected_tags"] = new_selection
-        st.rerun()
+#    # Now place the segmented control below the charts
+#    new_selection = st.session_state["selected_tags"]
+#    
+#    # If the user changes selections, update session_state and rerun
+#    if new_selection != st.session_state["selected_tags"]:
+#        st.session_state["selected_tags"] = new_selection
+#        st.rerun()
 
 def display_vote_results(vote_data, title_prefix=""):
     filtered_df, model_counts, unique_tags, tag_counts_per_model = filter_and_count_by_tags(vote_data)
