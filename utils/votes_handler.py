@@ -4,6 +4,13 @@ import os
 import pandas as pd
 import streamlit as st
 
+def load_shared_votes(contest_id: str, session_id: str):
+    """Load votes for a specific session ID."""
+    contest_dir = os.path.join("data", "contests", contest_id)
+    votes_file = os.path.join(contest_dir, "votes.csv")
+    votes_df = pd.read_csv(votes_file)
+    return votes_df[votes_df['session_id'] == session_id].to_dict(orient='records')
+
 def load_my_votes(contest_dir: str):
     """현재 세션의 투표 결과를 불러옵니다."""
     # load form votes.csv

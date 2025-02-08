@@ -38,11 +38,19 @@ def main():
     st.title("Shared Voting Results")
 
     # Extract query parameters
-    contest_id = st.query_params["contest_id"]
-    session_id = st.query_params["session_id"]
+    try:
+        contest_id = st.query_params["contest_id"]
+        session_id = st.query_params["session_id"]
+    except:
+        st.error("유효하지 않은 링크입니다.")
+        if st.button("나도 투표하러 가기"):
+            st.switch_page("pages/vote.py")
+        return
 
     if not contest_id or not session_id:
-        st.error("Invalid link. Missing contest ID or session ID.")
+        st.error("유효하지 않은 링크 입니다.")
+        if st.button("나도 투표하러 가기"):
+            st.switch_page("pages/vote.py")
         return
     
     if st.button("나도 투표하러 가기"):

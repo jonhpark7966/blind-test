@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import streamlit as st
 
 @st.cache_data
@@ -15,11 +16,11 @@ def display_contest_sidebar(contest_id=None):
     contests = load_contests()
 
     contest_index = 0
-    if not contest_id:
+    if contest_id is None:
         #TODO get default contest from somewhere else. (popular? or promoted?)
         contest_index = 0 
-    elif contest_id in contests['contest_id'].values:
-        contest_index = int(contests.index[contests['contest_id'] == contest_id][0])
+    elif np.int64(contest_id) in contests['contest_id'].values:
+        contest_index = int(contests.index[contests['contest_id'] == np.int64(contest_id)][0])
 
     selected_contest = st.sidebar.selectbox(
         "컨테스트 선택",

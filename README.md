@@ -97,7 +97,7 @@
   ## 6. 갈무리
 
 - [ ] 버그 수정하기
-  - [ ] vote -> result contest 유지하기
+  - [x] vote -> result contest 유지하기
   - [ ] result 페이지에서 video 투표 결과가 나오지 않음
   - [ ] shared_page contest name
 - [ ] TODO.
