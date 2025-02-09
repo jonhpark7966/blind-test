@@ -43,4 +43,6 @@ def display_page_sidebar_with_page():
     st.sidebar.page_link("./pages/stats.py", label="전체 통계 보기", icon="📊")
     st.sidebar.page_link("./pages/statsdetail.py", label="전체 선택 보기", icon="🌄")
     st.sidebar.page_link("./pages/shared.py", label="공유된 결과 보기", icon="📋", disabled=True)
-
+    st.sidebar.markdown("---")
+    st.sidebar.page_link("https://www.youtube.com/@eegirit", label="유투브 채널 보러가기", icon="▶️")
+    st.sidebar.page_link("https://giveaway.eegirit.com", label="경품 응모하기", icon="🎁")
